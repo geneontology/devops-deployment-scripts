@@ -142,3 +142,7 @@ def main(argv=None):
 
     for script in config.stack.scripts:
         helper.play_book(inventory_file, script, config.stack.vars)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
