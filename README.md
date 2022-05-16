@@ -5,8 +5,8 @@
 
 # devops-deployment-scripts
 
-Provisions an aws instance using terraform and calls ansible-playbook with playbooks specified in 
-the yaml config file. See config.yaml.sample.
+Provisions an aws instance using terraform and calls ansible playbooks specified in 
+the yaml config file. See `config.yaml.sample`.
 
 ```
 python3 -m pip install . 
