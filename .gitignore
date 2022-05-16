@@ -1,0 +1,7 @@
+.terraform.lock.hcl
+.terraform
+terraform.tfstate.d
+__pycache__
+*.pyc
+go_deploy.egg-info
+config.yml

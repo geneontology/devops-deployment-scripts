@@ -23,7 +23,7 @@ provider "aws" {
 }
 
 module "base" {
-  source = "git::https://github.com/geneontology/devops-aws-go-instance.git?ref=V2"
+  source = "git::https://github.com/geneontology/devops-aws-go-instance.git?ref=V2.0"
   instance_type = var.instance_type
   public_key_path = var.public_key_path
   tags = var.tags

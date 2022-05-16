@@ -14,7 +14,7 @@ setup(
     ],
     entry_points={
        'console_scripts': [
-              'go-deploy = go.deployl:main',
+              'go-deploy = go.deploy:main',
        ]
     },
 )
