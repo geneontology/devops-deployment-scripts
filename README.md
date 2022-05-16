@@ -3,10 +3,11 @@
    - ansible 2.10.7+
    - python3  3.8.5+
 
-# devops-deployment-scripts
+# Purpose
 
-Provisions an aws instance using terraform and calls ansible playbooks specified in 
-the yaml config file. See `config.yaml.sample`.
+Provisions an instance on using terraform and calls ansible playbooks specified in 
+the yaml config file. See `config.yaml.sample`, the `aws` directory for sample terraform 
+script and `stage.yaml` for sample ansible playbook. 
 
 ```
 python3 -m pip install . 
