@@ -87,6 +87,7 @@ class Helper:
             logger.info(script + result)
 
 
+# noinspection PyArgumentList
 def main(argv=None):
     argv = argv or sys.argv[1:]
     parser = utils.build_parser()
