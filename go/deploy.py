@@ -95,8 +95,20 @@ def main(argv=None):
     config = utils.read_config(args.conf)
     config = SimpleNamespace(**config)
     config.ssh_keys = SimpleNamespace(**config.ssh_keys)
-    config.instance = SimpleNamespace(**config.instance)
-    config.stack = SimpleNamespace(**config.stack)
+
+    have_instance = hasattr(config, "instance")
+
+    if have_instance:
+        config.instance = SimpleNamespace(**config.instance)
+    else:
+        config.instance = SimpleNamespace()
+
+    have_stack = hasattr(config, "stack")
+
+    if have_stack:
+        config.stack = SimpleNamespace(**config.stack)
+    else:
+        config.stack = SimpleNamespace()
 
     if not utils.check_ssh_keys(config.ssh_keys):
         logger.error('check ssh keys:may not exist')
@@ -119,15 +131,17 @@ def main(argv=None):
         workspace = helper.get_workspace()
         logger.info("using workspace=" + workspace)
 
-    config.instance.tags['Workspace'] = args.workspace
-    var_file = os.path.abspath(args.workspace + '.tfvars.json')
+    if have_instance:
+        config.instance.tags['Workspace'] = args.workspace
+        var_file = os.path.abspath(args.workspace + '.tfvars.json')
 
-    if not args.dry_run:
-        utils.write_ns_to_json_file(config.instance, var_file)
-    elif args.verbose:
-        logger.info("var file contents:" + str(config.instance))
+        if not args.dry_run:
+            utils.write_ns_to_json_file(config.instance, var_file)
+        elif args.verbose:
+            logger.info("var file contents:" + str(config.instance))
 
-    helper.apply(var_file)
+        helper.apply(var_file)
+
     public_ip = helper.get_public_ip()
 
     if not args.dry_run:
@@ -141,8 +155,9 @@ def main(argv=None):
         logger.info("inventory file contents:"
                     + utils.inventory_string(public_ip, 'ubuntu', config.ssh_keys.private))
 
-    for script in config.stack.scripts:
-        helper.play_book(inventory_file, script, config.stack.vars)
+    if have_stack:
+        for script in config.stack.scripts:
+            helper.play_book(inventory_file, script, config.stack.vars)
 
 
 if __name__ == "__main__":
