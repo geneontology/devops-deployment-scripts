@@ -69,16 +69,19 @@ class Helper:
         return result.strip()
 
     def play_book(self, inventory_file, script, ansible_vars):
-        env = ''
+        cmd = []
+        cmd.append('ansible-playbook')
 
         for k, v in ansible_vars.items():
-            env = '{} -e {}={}'.format(env, k, v)
+            cmd.append('-e')
+            cmd.append('{}="{}"'.format(k, v))
 
-        user_host = '-i {}'.format(inventory_file)
-        cmd = 'ansible-playbook {} {} {}'.format(env.strip(), user_host, script)
+        cmd.append('-i')
+        cmd.append(inventory_file)
+        cmd.append(script)
 
         if self.dry_run:
-            logger.info(cmd)
+            logger.info(' '.join(cmd))
             return
 
         result = utils.execute(cmd)

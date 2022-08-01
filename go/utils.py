@@ -140,8 +140,13 @@ def test_ssh_connection(ip, port=22, max_tries=100):
 def execute(cmd):
     import subprocess
 
-    logger.info('Executing ' + cmd)
-    command = cmd.split()
+    if isinstance(cmd, str):
+        logger.info('Executing:' + cmd)
+        command = cmd.split()
+    else:
+        logger.info('Executing:' + ' '.join(cmd))
+        command = cmd
+
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     code = result.returncode
 
