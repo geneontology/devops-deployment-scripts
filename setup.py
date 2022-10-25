@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='go-deploy',
-    version='0.3.0',
+    version='0.4.0',
     include_package_data=False,
     url='https://github.com/geneontology/devops-deployment-scripts.git',
     author='Abdelilah Essiari',
@@ -18,10 +18,11 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],     
-    python_requires='>=3.8.5',
+    python_requires='>=3.8',
     packages=find_packages(),    
     install_requires=[
        'pyyaml>=6.0', 
+       'paramiko>=2.11.0'
     ],
     entry_points={
        'console_scripts': [

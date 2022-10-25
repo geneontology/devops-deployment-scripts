@@ -1,7 +1,7 @@
 # Requirements
    - terraform v1.1.4+
    - ansible 2.10.7+
-   - python3  3.8.5+
+   - python3 3.8+
 
 # Purpose
 

@@ -25,25 +25,40 @@ class Helper:
             else:
                 logger.info(cmd)
 
-        result = self.get_workspace()
+        if not self.workspace:
+            return
+
+        result = self.get_current_workspace()
 
         if result != self.workspace:
-            cmd = "terraform -chdir={} workspace list".format(self.working_directory)
-            result = utils.execute(cmd)
-            workspaces = result.split()
-
-            if self.workspace not in workspaces:
-                cmd = "terraform -chdir={} workspace new {}".format(self.working_directory, self.workspace)
-            else:
-                cmd = "terraform -chdir={} workspace select {}".format(self.working_directory, self.workspace)
+            workspaces = self.list_workspaces()
 
             if not self.dry_run:
-                utils.execute(cmd)
-            else:
-                logger.info(cmd)
+                if self.workspace not in workspaces:
+                    cmd = "terraform -chdir={} workspace new {}".format(self.working_directory, self.workspace)
+                else:
+                    cmd = "terraform -chdir={} workspace select {}".format(self.working_directory, self.workspace)
 
-    def get_workspace(self):
-        result = utils.execute("terraform -chdir={} workspace show".format(self.working_directory))
+                utils.execute(cmd)
+
+    def list_workspaces(self):
+        cmd = "terraform -chdir={} workspace list".format(self.working_directory)
+
+        if self.dry_run:
+            logger.info(cmd)
+            return
+
+        result = utils.execute(cmd)
+        return result.split()
+
+    def get_current_workspace(self):
+        cmd = "terraform -chdir={} workspace show".format(self.working_directory)
+
+        if self.dry_run:
+            logger.info(cmd)
+            return None
+
+        result = utils.execute(cmd)
         return result.strip()
 
     def apply(self, var_file):
@@ -69,8 +84,7 @@ class Helper:
         return result.strip()
 
     def play_book(self, inventory_file, script, ansible_vars):
-        cmd = []
-        cmd.append('ansible-playbook')
+        cmd = ['ansible-playbook']
 
         for k, v in ansible_vars.items():
             cmd.append('-e')
@@ -95,9 +109,45 @@ def main(argv=None):
     argv = argv or sys.argv[1:]
     parser = utils.build_parser()
     args = parser.parse_args(argv)
+
+    helper = Helper(args.init, args.working_directory, args.workspace, args.verbose, args.dry_run)
+    helper.initialize()
+
+    if args.list_workspaces:
+        workspaces = helper.list_workspaces()
+
+        if not args.dry_run:
+            workspaces.remove('*')
+            print(workspaces)
+
+    if not args.conf:
+        return
+
+    if not args.workspace:
+        logger.error('must specify a workspace')
+        sys.exit(1)
+
     config = utils.read_config(args.conf)
     config = SimpleNamespace(**config)
     config.ssh_keys = SimpleNamespace(**config.ssh_keys)
+
+    from .ssh_helper import parse_private_key, parse_public_key
+
+    parse_private_key(config.ssh_keys.private)
+    parse_public_key(config.ssh_keys.public)
+
+    have_runtime = hasattr(config, "runtime")
+
+    if have_runtime:
+        config.runtime = SimpleNamespace(**config.runtime)
+    else:
+        config.runtime = SimpleNamespace()
+
+    if not hasattr(config.runtime, "ssh_user"):
+        config.runtime.ssh_user = 'ubuntu'
+
+    if not hasattr(config.runtime, "ssh_port"):
+        config.runtime.ssh_port = 22
 
     have_instance = hasattr(config, "instance")
 
@@ -127,11 +177,8 @@ def main(argv=None):
         logger.error('terraform directory does not exist')
         sys.exit(1)
 
-    helper = Helper(args.init, args.working_directory, args.workspace, args.verbose, args.dry_run)
-    helper.initialize()
-
     if not args.dry_run:
-        workspace = helper.get_workspace()
+        workspace = helper.get_current_workspace()
         logger.info("using workspace=" + workspace)
 
     if have_instance:
@@ -148,15 +195,25 @@ def main(argv=None):
     public_ip = helper.get_public_ip()
 
     if not args.dry_run:
-        utils.test_ssh_connection(public_ip)
+        username = config.runtime.ssh_user
+        port = config.runtime.ssh_port
+        key = config.ssh_keys.private
+        utils.test_ssh_connection_using_paramiko(public_ip, username, key, port)
 
-    inventory_file = os.path.abspath(args.workspace + '.cfg')
+    inventory_file = os.path.abspath(args.workspace + '-inventory.cfg')
+    host_string = utils.inventory_string(public_ip,
+                                         config.runtime.ssh_user,
+                                         config.runtime.ssh_port,
+                                         config.ssh_keys.private)
 
     if not args.dry_run:
-        utils.write_inventory_file(public_ip, 'ubuntu', config.ssh_keys.private, inventory_file)
-    elif args.verbose:
-        logger.info("inventory file contents:"
-                    + utils.inventory_string(public_ip, 'ubuntu', config.ssh_keys.private))
+        if args.verbose:
+            logger.info(f"creating ansible inventory file {inventory_file}: {host_string}")
+
+        utils.write_inventory_file(inventory_file, host_string)
+    else:
+        if args.verbose:
+            logger.info(f"entry in ansible inventory file would look like: {host_string}")
 
     if have_stack:
         for script in config.stack.scripts:
