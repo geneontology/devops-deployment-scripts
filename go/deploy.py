@@ -19,9 +19,9 @@ class Helper:
         if self.init:
             cmd = "terraform -chdir={} init -reconfigure".format(self.working_directory)
             if not self.dry_run:
-                result = utils.execute(cmd)
-                if self.verbose:
-                    logger.info(result)
+                import os
+
+                os.system(cmd)
             else:
                 logger.info(cmd)
 
