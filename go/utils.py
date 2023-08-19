@@ -85,6 +85,9 @@ def build_parser():
     parser.add_argument('-list-workspaces', action='store_true', default=False, help='list terraform workspaces',)
     parser.add_argument('-verbose', action='store_true', default=False, help='verbose')
     parser.add_argument('-dry-run', action='store_true', default=False, help='dry-run')
+    parser.add_argument('-destroy', action='store_true', default=False, help='destroy terraform state and workspace')
+    parser.add_argument('-show', action='store_true', default=False, help='show terraform state')
+    parser.add_argument('-output', action='store_true', default=False, help='show terraform output')
     return parser
 
 
@@ -133,12 +136,12 @@ def test_ssh_connection_using_paramiko(ip, username, private_key_path, port=22, 
     helper = SshHelper(ip, username, private_key_path, port)
     num_tries = 1
 
-    logger.info('testing if ssh port is ready')
+    logger.info(f'Checking if ssh port to host {ip} is ready.')
     while num_tries <= max_tries:
         try:
-            logger.info('testing ssh num_tries:' + str(num_tries))
+            logger.info(f'Checking ssh attempt:{num_tries} out of {max_tries}')
             helper.connect()
-            logger.info('OK, ssh port is READY: num_tries:' + str(num_tries))
+            logger.info(f'OK, ssh port is READY on host {ip}: num_tries:' + str(num_tries))
             return
         except Exception:
             helper.close_quietly()
@@ -146,14 +149,14 @@ def test_ssh_connection_using_paramiko(ip, username, private_key_path, port=22, 
             import time
             time.sleep(2)
 
-    logger.warning('looks like ssh port is not ready. please check ssh and/or retry ...')
+    logger.warning(f'Looks like ssh port is not ready on host {ip}. Please check ssh and/or try again ...')
 
 
 def test_ssh_connection(ip, port=22, max_tries=100):
     cmd = 'nc -z -G 1 ' + ip + ' ' + str(port)
     num_tries = 1
 
-    logger.info('testing if ssh port is ready:' + cmd)
+    logger.info(f'testing if ssh port is ready on {ip}:{cmd}')
     while num_tries <= max_tries:
         logger.info('testing ssh num_tries:' + str(num_tries))
         code = os.system(cmd)

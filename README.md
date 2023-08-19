@@ -16,12 +16,14 @@ cp ./config.yaml.sample config.yaml   # Modify as needed ssh keys, ...
 # Usage
 go-deploy -h
 
-# Dry run
-go-deploy -init -c config.yml -w workspace -d aws -dry-run -verbose
+# Init 
+go-deploy -d aws -init
 
 # Deploy 
-go-deploy -init -c config.yml -w workspace -d aws -verbose
+go-deploy -d aws -w <workspace> -c config.yml -verbose 
+go-deploy -d aws -w <workspace> -show 
+go-deploy -d aws -w <workspace> -output
 
 # Tear Dow
-terraform -chdir=aws destroy    # Enter yes when prompted.
+go-deploy -d aws -w <workspace> -destroy -verbose 
 ```

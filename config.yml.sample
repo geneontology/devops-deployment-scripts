@@ -1,15 +1,17 @@
 ssh_keys:
-     public: /Users/SOME_USER/SSH/go-ssh.pub
-     private: /Users/SOME_USER/SSH/go-ssh
+     public: /tmp/go-ssh.pub
+     private: /tmp/go-ssh
 
 instance:
     tags:
        Name: go-test-provision
     instance_type: t2.micro
+    use_elastic_ip: False 
+    dns_zone_id: ""
+    dns_record_name: ""
     disk_size: 10 
-
 stack:
    vars:
       stage_dir: /home/ubuntu/stage_dir
-      S3_CRED_FILE: /Users/SOME_USER/S3/s3cfg
+      TEST_FILE: test_file 
    scripts: [ "stage.yaml" ]
