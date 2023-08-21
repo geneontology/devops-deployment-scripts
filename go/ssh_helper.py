@@ -9,6 +9,7 @@ def parse_public_key(public_key_path):
     return paramiko.PublicBlob.from_file(path)
 
 
+# noinspection PyBroadException
 def parse_private_key(private_key_path):
     import paramiko
     from pathlib import Path
@@ -20,6 +21,7 @@ def parse_private_key(private_key_path):
     except Exception:
         return paramiko.ecdsakey.ECDSAKey.from_private_key_file(path)
 
+
 class SshHelper:
     def __init__(self, host, user, key_path, port=22):
         self.host = host
@@ -27,7 +29,6 @@ class SshHelper:
         self.key = parse_private_key(key_path)
         self.client = None
         self.port = port
-
 
     def connect(self, timeout=10):
         self.client = paramiko.SSHClient()

@@ -1,12 +1,13 @@
 - hosts: all
 
   tasks:
-  - name: ansible create stage directory
+  - name: create stage directory
     file:
       path: '{{ stage_dir }}'
       state: directory
 
-  - name: copy s3cfg is unused delete it 
-    copy:
-      src: "{{ S3_CRED_FILE }}"
-      dest: "{{ stage_dir }}/s3cfg"
+  - name: touch file 
+    file: 
+      path: '{{ stage_dir }}/{{ TEST_FILE }}'
+      state: touch
+
