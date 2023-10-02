@@ -26,7 +26,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/Dockerfile.dev
@@ -40,23 +40,6 @@ jobs:
       - name: List Images
         run: |
           docker image list | grep geneontology
-
-      - name: Create Bash Script
-        run: |
-           cat <<EOF > arun.sh |
-           #!/bin/bash
-           go-deploy -init --working-directory aws
-           go-deploy --working-directory aws -w test-go-deploy -c config.yml.sample
-           public_ip=`terraform -chdir=aws output -raw public_ip`
-           echo $public_ip
-           ssh -i /tmp/go-ssh ubuntu@$public_ip ls -l stage_dir/test_file
-           ret=$?
-           go-deploy --working-directory aws -w test-go-deploy -destroy
-           exit $ret
-           EOF
-           sleep 1
-           ls -l
-           chmod +x arun.sh
 
       - name: Provision and Test
         run: |
