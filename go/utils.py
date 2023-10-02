@@ -169,6 +169,26 @@ def test_ssh_connection(ip, port=22, max_tries=100):
     logger.warning('ssh port is not ready')
 
 
+def execute_and_stream_output(cmd):
+    import subprocess
+
+    if isinstance(cmd, str):
+        logger.info('Executing:' + cmd)
+        command = cmd.split()
+    else:
+        logger.info('Executing:' + ' '.join(cmd))
+        command = cmd
+
+    result = subprocess.run(command, stderr=subprocess.PIPE)
+    code = result.returncode
+
+    if code != 0:
+        raise Exception('command failed:code={}:{}:reason={}'.format(
+            code,
+            subprocess.list2cmdline(command),
+            result.stderr.decode('utf-8')))
+
+
 def execute(cmd):
     import subprocess
 
@@ -183,9 +203,10 @@ def execute(cmd):
     code = result.returncode
 
     if code != 0:
-        raise Exception('command failed:{}, code={}, reason={}'.format(
-            subprocess.list2cmdline(command),
+        raise Exception('command failed:code={}:{}:reason={}'.format(
             code,
+            subprocess.list2cmdline(command),
             result.stdout.decode('utf-8') + "\n" + result.stderr.decode('utf-8')))
 
+    logger.info(f"Status=OK:command={' '.join(command)}")
     return result.stdout.decode('utf-8')
