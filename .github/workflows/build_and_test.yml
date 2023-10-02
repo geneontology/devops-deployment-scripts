@@ -9,21 +9,57 @@ on:
       - main 
   workflow_dispatch:
 
+env:
+  tagged_image: geneontology/go-devops-base:cicd
+
 jobs:
-  DockertTest:
+  DockerBuildAndTest:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      
-      - name: Pull Image
-        run: |
-          docker pull geneontology/go-devops-base:actions 
+      - name: Checkout
+        uses: actions/checkout@v3
 
-      - name: Run Tests 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: docker/Dockerfile.dev
+          push: false
+          load: true
+          build-args: |
+             base_image=ubuntu:22.04
+
+          tags: ${{ env.tagged_image }}
+
+      - name: List Images
+        run: |
+          docker image list | grep geneontology
+
+      - name: Create Bash Script
+        run: |
+           cat <<EOF > arun.sh |
+           #!/bin/bash
+           go-deploy -init --working-directory aws
+           go-deploy --working-directory aws -w test-go-deploy -c config.yml.sample
+           public_ip=`terraform -chdir=aws output -raw public_ip`
+           echo $public_ip
+           ssh -i /tmp/go-ssh ubuntu@$public_ip ls -l stage_dir/test_file
+           ret=$?
+           go-deploy --working-directory aws -w test-go-deploy -destroy
+           exit $ret
+           EOF
+           sleep 1
+           ls -l
+           chmod +x arun.sh
+
+      - name: Provision and Test
         run: |
           docker run --rm \
-              -e GEN_SSH_KEYS=${{  secrets.GEN_SSH_KEYS }}  -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} -e AWS_ACCESS_SECRET=${{ secrets.AWS_ACCESS_SECRET }} \
-              -v ${{ github.workspace }}:/go-deploytesting -w /go-deploytesting -t geneontology/go-devops-base:actions ./run.sh
+              -e GEN_SSH_KEYS=${{ vars.GEN_SSH_KEYS }}  -e AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} -e AWS_ACCESS_SECRET=${{ secrets.AWS_ACCESS_SECRET }} \
+              -v ${{ github.workspace }}:/go-deploytesting -w /go-deploytesting -t ${{ env.tagged_image }} ./run.sh
