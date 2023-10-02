@@ -12,3 +12,12 @@ RUN apt-get install -y awscli mg
 RUN apt-get -qq purge && apt-get -qq clean && rm -rf /var/lib/apt/lists/*
 
 RUN pip install --no-cache-dir ansible s3cmd go-deploy
+
+ENV GEN_SSH_KEYS=0
+ENV AWS_ACCESS_KEY=""
+ENV AWS_ACCESS_SECRET=""
+ENV ANSIBLE_HOST_KEY_CHECKING=False
+
+COPY ./docker/entrypoint.sh /
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
