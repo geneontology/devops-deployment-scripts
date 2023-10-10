@@ -19,6 +19,7 @@ ENV GEN_SSH_KEYS=0
 ENV AWS_ACCESS_KEY=""
 ENV AWS_ACCESS_SECRET=""
 ENV ANSIBLE_HOST_KEY_CHECKING=False
+ENV AWS_SHARED_CREDENTIALS_FILE=/tmp/go-aws-credentials
 
 COPY ./docker/entrypoint.sh /
 RUN chmod +x /entrypoint.sh
