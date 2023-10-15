@@ -88,6 +88,7 @@ def build_parser():
     parser.add_argument('-destroy', action='store_true', default=False, help='destroy terraform state and workspace')
     parser.add_argument('-show', action='store_true', default=False, help='show terraform state')
     parser.add_argument('-output', action='store_true', default=False, help='show terraform output')
+    parser.add_argument('-version', action='store_true', default=False, help='print version and exit')
     return parser
 
 
@@ -187,6 +188,8 @@ def execute_and_stream_output(cmd):
             code,
             subprocess.list2cmdline(command),
             result.stderr.decode('utf-8')))
+
+    logger.info(f"Status=OK:command={' '.join(command)}")
 
 
 def execute(cmd):
