@@ -176,6 +176,11 @@ def main(argv=None):
     parser = utils.build_parser()
     args = parser.parse_args(argv)
 
+    if args.version:
+        from . import __version__ as version
+        print(version)
+        sys.exit(1)
+
     if not os.path.isdir(args.working_directory):
         logger.error(f'{args.working_directory} is not a directory')
         sys.exit(1)
