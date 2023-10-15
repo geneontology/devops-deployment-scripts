@@ -16,13 +16,14 @@ class Helper:
 
     def initialize(self):
         cmd = "terraform -chdir={} init -reconfigure".format(self.working_directory)
-        if not self.dry_run:
-            print(cmd)
-            import os
-
-            os.system(cmd)
-        else:
+        if self.dry_run:
             logger.info(cmd)
+            return
+
+        if self.verbose:
+            utils.execute_and_stream_output(cmd)
+        else:
+            utils.execute(cmd)
 
     def select_workspace(self):
         assert self.workspace
@@ -101,10 +102,10 @@ class Helper:
             logger.info(cmd)
             return
 
-        result = utils.execute(cmd)
-
         if self.verbose:
-            logger.info(result)
+            utils.execute_and_stream_output(cmd)
+        else:
+            utils.execute(cmd)
 
     def show(self):
         cmd = "terraform -chdir={} show".format(self.working_directory)
@@ -133,10 +134,10 @@ class Helper:
             logger.info(cmd)
             return
 
-        result = utils.execute(cmd)
-
         if self.verbose:
-            logger.info(result)
+            utils.execute_and_stream_output(cmd)
+        else:
+            utils.execute(cmd)
 
     def get_public_ip(self):
         cmd = 'terraform -chdir={} output -raw public_ip'.format(self.working_directory)
@@ -163,10 +164,10 @@ class Helper:
             logger.info(' '.join(cmd))
             return
 
-        result = utils.execute(cmd)
-
         if self.verbose:
-            logger.info(script + result)
+            utils.execute_and_stream_output(cmd)
+        else:
+            utils.execute(cmd)
 
 
 # noinspection PyArgumentList

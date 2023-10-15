@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='go-deploy',
-    version='0.4.2',
+    version='0.4.3',
     include_package_data=False,
     url='https://github.com/geneontology/devops-deployment-scripts.git',
     author='Abdelilah Essiari',

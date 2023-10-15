@@ -24,6 +24,6 @@ go-deploy -d aws -w <workspace> -c config.yml -verbose
 go-deploy -d aws -w <workspace> -show 
 go-deploy -d aws -w <workspace> -output
 
-# Tear Dow
+# Tear Down
 go-deploy -d aws -w <workspace> -destroy -verbose 
 ```
