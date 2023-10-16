@@ -3,9 +3,11 @@ from setuptools import setup, find_packages
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+from go import __version__
+
 setup(
     name='go-deploy',
-    version='0.4.3',
+    version=__version__,
     include_package_data=False,
     url='https://github.com/geneontology/devops-deployment-scripts.git',
     author='Abdelilah Essiari',
