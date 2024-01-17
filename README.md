@@ -17,7 +17,10 @@ cp ./config.yaml.sample config.yaml   # Modify as needed ssh keys, ...
 go-deploy -h
 
 # Init 
-go-deploy -d aws -init
+go-deploy -d aws -init -verbose
+
+# List workspaces
+go-deploy -d aws -list-workspaces
 
 # Deploy 
 go-deploy -d aws -w <workspace> -c config.yml -verbose 
