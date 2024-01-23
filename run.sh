@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 ansible --version
 terraform --version
 go-deploy -version

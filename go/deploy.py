@@ -8,14 +8,11 @@ logger = utils.init_logger('go.provision')
 
 
 class Helper:
-    def __init__(self, working_directory, workspace, verbose, dry_run, show, output, version):
+    def __init__(self, working_directory, workspace, verbose, dry_run):
         self.working_directory = working_directory
         self.workspace = workspace
         self.verbose = verbose
         self.dry_run = dry_run
-        self.show = show
-        self.output = output
-        self.version = version
 
     def initialize(self):
         cmd = "terraform -chdir={} init -reconfigure".format(self.working_directory)
@@ -193,7 +190,7 @@ def main(argv=None):
         sys.exit(1)
 
     helper = Helper(args.working_directory, args.workspace, args.verbose,
-                    args.dry_run, args.show, args.output, args.version)
+                    args.dry_run)
 
     if args.init:
         helper.initialize()
