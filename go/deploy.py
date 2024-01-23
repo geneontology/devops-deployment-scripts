@@ -8,11 +8,13 @@ logger = utils.init_logger('go.provision')
 
 
 class Helper:
-    def __init__(self, working_directory, workspace, verbose, dry_run):
+    def __init__(self, working_directory, workspace, verbose, dry_run, show, output)
         self.working_directory = working_directory
         self.workspace = workspace
         self.verbose = verbose
         self.dry_run = dry_run
+        self.show = show
+        self.output = output
 
     def initialize(self):
         cmd = "terraform -chdir={} init -reconfigure".format(self.working_directory)
@@ -189,7 +191,7 @@ def main(argv=None):
         logger.error('workspace cannot be default')
         sys.exit(1)
 
-    helper = Helper(args.working_directory, args.workspace, args.verbose, args.dry_run)
+    helper = Helper(args.working_directory, args.workspace, args.verbose, args.dry_run, args.show, args.output)
 
     if args.init:
         helper.initialize()
