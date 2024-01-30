@@ -189,7 +189,8 @@ def main(argv=None):
         logger.error('workspace cannot be default')
         sys.exit(1)
 
-    helper = Helper(args.working_directory, args.workspace, args.verbose, args.dry_run)
+    helper = Helper(args.working_directory, args.workspace, args.verbose,
+                    args.dry_run)
 
     if args.init:
         helper.initialize()
